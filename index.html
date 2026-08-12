@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مسار المالي - حاسبة التمويل الشخصي والأرباح | FinMasar</title>
+    <meta name="description" content="حاسبة التمويل الشخصي والقروض المتقدمة من مسار المالي. احسب القسط الشهري، الفائدة البنكية، وإجمالي المبلغ المستحق بدقة مجاناً.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Tajawal', sans-serif; }</style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
+
+    <!-- Header -->
+    <header class="bg-slate-900 text-white shadow-md">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="/" class="flex items-center gap-2 text-2xl font-extrabold text-blue-400">
+                <span class="bg-blue-600 text-white px-2.5 py-1 rounded-lg text-xl">FM</span>
+                مسار المالي <span class="text-xs text-slate-400 font-normal">FinMasar</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Ad Area Top -->
+    <div class="max-w-4xl mx-auto w-full px-4 mt-6">
+        <div class="bg-slate-200 border border-dashed border-slate-400 rounded-lg p-3 text-center text-slate-500 text-xs">
+            [ مساحة إعلانية مميزة - Google AdSense ]
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 py-6 w-full">
+        <section class="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden mb-8">
+            <div class="bg-gradient-to-r from-slate-900 to-blue-900 text-white p-6">
+                <h1 class="text-2xl font-extrabold mb-1">حاسبة التمويل الشخصي والأرباح</h1>
+                <p class="text-blue-200 text-xs">احسب القسط الشهري والفائدة المتوقعة لتمويلك بكل سهولة.</p>
+            </div>
+
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Inputs -->
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">مبلغ التمويل (ريال):</label>
+                        <input type="number" id="amount" value="100000" step="5000" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 font-bold text-slate-900 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">نسبة الفائدة السنوية (%):</label>
+                        <input type="number" id="interest" value="4.5" step="0.1" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 font-bold text-slate-900 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">مدة التمويل (سنوات):</label>
+                        <select id="years" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 font-bold text-slate-900 outline-none">
+                            <option value="1">سنة واحدة (12 شهر)</option>
+                            <option value="2">سنتان (24 شهر)</option>
+                            <option value="3">3 سنوات (36 شهر)</option>
+                            <option value="4">4 سنوات (48 شهر)</option>
+                            <option value="5" selected>5 سنوات (60 شهر)</option>
+                        </select>
+                    </div>
+                    <button onclick="calculate()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition">
+                        احسب القسط الآن
+                    </button>
+                </div>
+
+                <!-- Results -->
+                <div class="bg-slate-900 rounded-2xl p-5 text-white flex flex-col justify-between space-y-3">
+                    <h2 class="text-sm font-bold text-blue-300 border-b border-slate-800 pb-2">النتائج التقديرية</h2>
+                    <div class="bg-slate-800 p-3 rounded-xl border border-slate-700">
+                        <span class="text-slate-400 text-xs block">القسط الشهري المتوقع:</span>
+                        <span id="res-monthly" class="text-2xl font-black text-emerald-400">0.00</span> <span class="text-xs text-slate-400">ريال</span>
+                    </div>
+                    <div class="bg-slate-800 p-3 rounded-xl border border-slate-700">
+                        <span class="text-slate-400 text-xs block">إجمالي أرباح البنك:</span>
+                        <span id="res-interest" class="text-lg font-bold text-blue-300">0.00</span> <span class="text-xs text-slate-400">ريال</span>
+                    </div>
+                    <div class="bg-slate-800 p-3 rounded-xl border border-slate-700">
+                        <span class="text-slate-400 text-xs block">إجمالي المبلغ المستحق:</span>
+                        <span id="res-total" class="text-lg font-bold text-slate-100">0.00</span> <span class="text-xs text-slate-400">ريال</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEO Article -->
+        <article class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 leading-relaxed text-slate-700 space-y-4">
+            <h2 class="text-lg font-bold text-slate-900 border-r-4 border-blue-600 pr-2">كيف تحسب التمويل الشخصي والفائدة؟</h2>
+            <p class="text-sm">تعتبر حاسبة التمويل الشخصي من مسار المالي أداة سريعة لحساب الأقساط الشهرية والفائدة الإجمالية بناءً على نسبة الفائدة السنوية أونلاين بدقة متناهية.</p>
+        </article>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-6 text-center text-xs">
+        <p>&copy; 2026 مسار المالي (FinMasar.com) - جميع الحقوق محفوظة.</p>
+    </footer>
+
+    <script>
+        function calculate() {
+            const amount = parseFloat(document.getElementById('amount').value) || 0;
+            const interestRate = parseFloat(document.getElementById('interest').value) || 0;
+            const years = parseInt(document.getElementById('years').value) || 1;
+            if (amount <= 0) return;
+            const totalMonths = years * 12;
+            const totalInterest = amount * (interestRate / 100) * years;
+            const totalPayment = amount + totalInterest;
+            const monthlyPayment = totalPayment / totalMonths;
+            document.getElementById('res-monthly').innerText = monthlyPayment.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('res-interest').innerText = totalInterest.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('res-total').innerText = totalPayment.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        }
+        window.onload = calculate;
+    </script>
+</body>
+</html>
