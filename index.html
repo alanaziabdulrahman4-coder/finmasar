@@ -1,110 +1,863 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl"="width=device-width, initial-scale=1.0">
-    <title>مسار المالي - حاسبة التمويل الشخصي والأرباح | FinMasar</title>
-    <meta name="description" content="حاسبة التمويل الشخصي والقروض المتقدمة من مسار المالي. احسب القسط الشهري، الفائدة البنكية، وإجمالي المبلغ المستحق بدقة مجاناً.">
-    <script src="https://cdn.tailwindcss.com"></script>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فين مسار | منصة الحاسبات المالية والتكاليف المنزلية الدقيقة</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Tajawal', sans-serif; }</style>
-</head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
+    <style>
+        :root {
+            --primary: #0f172a;
+            --accent: #2563eb;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
 
-    <!-- Header -->
-    <header class="bg-slate-900 text-white shadow-md">
-        <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
-            <a href="/" class="flex items-center gap-2 text-2xl font-extrabold text-blue-400">
-                <span class="bg-blue-600 text-white px-2.5 py-1 rounded-lg text-xl">FM</span>
-                مسار المالي <span class="text-xs text-slate-400 font-normal">FinMasar</span>
-            </a>
-        </div>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding: 20px 10px; display: flex; justify-content: center; }
+        .main-wrapper { width: 100%; max-width: 980px; }
+
+        .site-header { text-align: center; margin-bottom: 20px; }
+        .site-header .brand-name { font-size: 30px; font-weight: 800; color: var(--primary); }
+        .site-header .brand-name span { color: var(--accent); }
+        .site-header p { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
+
+        /* Navigation Tabs */
+        .nav-tabs { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .tab-btn {
+            flex: 1; min-width: 160px; padding: 12px 14px; border-radius: 10px;
+            border: 1px solid var(--border-color); background: #ffffff; font-weight: 700;
+            font-size: 13px; cursor: pointer; transition: all 0.2s ease; color: var(--text-muted);
+            text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .tab-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .tab-btn.active {
+            background: var(--accent); color: #ffffff; border-color: var(--accent);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
+
+        /* Container Card */
+        .container {
+            background: var(--card-bg); border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); padding: 25px; border: 1px solid var(--border-color);
+        }
+
+        .calc-panel { display: none; }
+        .calc-panel.active { display: block; }
+
+        .panel-header { text-align: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
+        .panel-header h2 { font-size: 20px; color: var(--primary); font-weight: 800; }
+
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; margin-bottom: 8px; }
+        .badge-sama { background-color: #e0f2fe; color: #0369a1; }
+        .badge-cma { background-color: #ecfdf5; color: #047857; }
+        .badge-util { background-color: #fef3c7; color: #b45309; }
+
+        .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) {
+            .grid-layout { grid-template-columns: 1fr; }
+            .tab-btn { flex: 1 1 100%; }
+        }
+
+        .form-section { background: #f1f5f9; padding: 20px; border-radius: 12px; }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 4px; color: var(--primary); }
+        .help-text { display: block; font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+        .form-group input, .form-group select {
+            width: 100%; padding: 9px 12px; border: 1px solid var(--border-color);
+            border-radius: 8px; font-size: 13px; outline: none; background-color: #fff;
+        }
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        /* Accordion for Precision Options */
+        details.precision-box {
+            background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 8px;
+            padding: 10px; margin-top: 15px; font-size: 12px;
+        }
+        details.precision-box summary {
+            font-weight: 700; color: var(--accent); cursor: pointer; outline: none;
+        }
+
+        /* Quick Choice Chips */
+        .quick-chips { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+        .chip {
+            background: #e2e8f0; border: none; padding: 4px 8px; border-radius: 6px;
+            font-size: 10px; font-weight: 600; cursor: pointer; color: var(--text-main); transition: background 0.2s;
+        }
+        .chip:hover { background: #cbd5e1; }
+
+        .radio-group { display: flex; gap: 10px; }
+        .radio-btn { flex: 1; text-align: center; }
+        .radio-btn input { display: none; }
+        .radio-btn label {
+            display: block; padding: 8px; background: #fff; border: 1px solid var(--border-color);
+            border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600;
+        }
+        .radio-btn input:checked + label { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+        .checkbox-group {
+            display: flex; align-items: center; gap: 8px; margin-top: 10px;
+            background: #fff; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);
+        }
+
+        .result-section { display: flex; flex-direction: column; gap: 12px; }
+
+        .hero-card {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #fff; border-radius: 12px; padding: 16px; text-align: center;
+        }
+        .hero-card .amount { font-size: 26px; font-weight: 800; color: #38bdf8; margin: 4px 0; }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .stat-box { background: #f8fafc; border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; text-align: center; }
+        .stat-box .title { font-size: 10px; color: var(--text-muted); margin-bottom: 2px; }
+        .stat-box .value { font-size: 14px; font-weight: 800; color: var(--primary); }
+
+        .dbr-card { background: #ffffff; border: 1px solid var(--border-color); border-radius: 12px; padding: 14px; text-align: center; }
+        .dbr-meter { height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden; margin: 8px 0; }
+        .dbr-fill { height: 100%; width: 0%; background: var(--success); transition: width 0.5s, background-color 0.3s; }
+
+        .alert-box { padding: 10px 12px; border-radius: 8px; font-size: 11px; line-height: 1.4; display: none; }
+        .alert-warning { background-color: #fffbeb; border: 1px solid #fcd34d; color: #b45309; }
+        .alert-danger { background-color: #fef2f2; border: 1px solid #fca5a5; color: #b91c1c; }
+
+        .btn-share {
+            width: 100%; padding: 10px; background: #10b981; color: white; border: none;
+            border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 6px; transition: background 0.2s;
+        }
+        .btn-share:hover { background: #059669; }
+
+        .sub-nav { display: flex; gap: 6px; margin-bottom: 12px; background: #e2e8f0; padding: 3px; border-radius: 8px; }
+        .sub-nav-btn {
+            flex: 1; padding: 7px; border: none; border-radius: 6px; background: transparent;
+            font-size: 11px; font-weight: 700; cursor: pointer; color: var(--text-muted);
+        }
+        .sub-nav-btn.active { background: #ffffff; color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
+        .footer-info { margin-top: 20px; padding-top: 12px; border-top: 1px dashed var(--border-color); font-size: 10px; color: var(--text-muted); line-height: 1.5; }
+    </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+    <header class="site-header">
+        <div class="brand-name">فين مسار <span>FinMasar</span></div>
+        <p>منصة الحاسبات المالية والتكاليف المنزلية بدقة عالية</p>
     </header>
 
-    <!-- Ad Area Top -->
-    <div class="max-w-4xl mx-auto w-full px-4 mt-6">
-        <div class="bg-slate-200 border border-dashed border-slate-400 rounded-lg p-3 text-center text-slate-500 text-xs">
-            [ مساحة إعلانية مميزة - Google AdSense ]
-        </div>
+    <!-- Navigation Tabs -->
+    <div class="nav-tabs">
+        <button class="tab-btn active" id="btn-dbr" onclick="switchTab('dbr')">💳 التمويل و DBR</button>
+        <button class="tab-btn" id="btn-invest" onclick="switchTab('invest')">📈 الأرباح والاستثمار</button>
+        <button class="tab-btn" id="btn-util" onclick="switchTab('util')">⚡ الكهرباء وتكلفة الأجهزة</button>
     </div>
 
-    <!-- Main Content -->
-    <main class="max-w-4xl mx-auto px-4 py-6 w-full">
-        <section class="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden mb-8">
-            <div class="bg-gradient-to-r from-slate-900 to-blue-900 text-white p-6">
-                <h1 class="text-2xl font-extrabold mb-1">حاسبة التمويل الشخصي والأرباح</h1>
-                <p class="text-blue-200 text-xs">احسب القسط الشهري والفائدة المتوقعة لتمويلك بكل سهولة.</p>
+    <div class="container">
+        
+        <!-- 1. التمويل و DBR -->
+        <div id="panel-dbr" class="calc-panel active">
+            <div class="panel-header">
+                <span class="badge badge-sama">محدث وفق ضوابط التمويل المسؤول (SAMA)</span>
+                <h2>حاسبة الاستقطاع والتمويل المتاح</h2>
             </div>
-
-            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Inputs -->
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">مبلغ التمويل (ريال):</label>
-                        <input type="number" id="amount" value="100000" step="5000" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 font-bold text-slate-900 outline-none">
+            <div class="grid-layout">
+                <div class="form-section">
+                    <div class="form-group">
+                        <label>نوع المقترض</label>
+                        <div class="radio-group">
+                            <div class="radio-btn">
+                                <input type="radio" id="emp" name="borrower_type" value="employee" checked onchange="calculateDBR()">
+                                <label for="emp">موظف</label>
+                            </div>
+                            <div class="radio-btn">
+                                <input type="radio" id="ret" name="borrower_type" value="retired" onchange="calculateDBR()">
+                                <label for="ret">متقاعد</label>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">نسبة الفائدة السنوية (%):</label>
-                        <input type="number" id="interest" value="4.5" step="0.1" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 font-bold text-slate-900 outline-none">
+                    <div class="form-group">
+                        <label for="salary">الراتب الشهري الصافي (ريال)</label>
+                        <input type="number" id="salary" step="any" placeholder="12000" oninput="calculateDBR()">
+                        <div class="quick-chips">
+                            <button class="chip" onclick="setSalary(8000)">8,000</button>
+                            <button class="chip" onclick="setSalary(12000)">12,000</button>
+                            <button class="chip" onclick="setSalary(18000)">18,000</button>
+                            <button class="chip" onclick="setSalary(25000)">25,000</button>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">مدة التمويل (سنوات):</label>
-                        <select id="years" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 font-bold text-slate-900 outline-none">
-                            <option value="1">سنة واحدة (12 شهر)</option>
-                            <option value="2">سنتان (24 شهر)</option>
-                            <option value="3">3 سنوات (36 شهر)</option>
-                            <option value="4">4 سنوات (48 شهر)</option>
-                            <option value="5" selected>5 سنوات (60 شهر)</option>
+                    <div class="form-group">
+                        <label for="existing_loans">أقساط التمويل الشخصي والسيارات (ريال)</label>
+                        <input type="number" id="existing_loans" step="any" placeholder="0" oninput="calculateDBR()">
+                    </div>
+                    <div class="form-group">
+                        <label for="cc_limit">إجمالي سقف البطاقات الائتمانية (ريال)</label>
+                        <input type="number" id="cc_limit" step="any" placeholder="10000" oninput="calculateDBR()">
+                        <span class="help-text">يُخصم 5% شهرياً من إجمالي السقف.</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="bnpl_installment">أقساط الشراء الآجل (تابي / تمارا) (ريال)</label>
+                        <input type="number" id="bnpl_installment" step="any" placeholder="0" oninput="calculateDBR()">
+                    </div>
+                    <div class="form-group">
+                        <label>حالة التمويل العقاري</label>
+                        <select id="real_estate_status" onchange="toggleRealEstateInput(); calculateDBR();">
+                            <option value="none">لا يوجد تمويل عقاري</option>
+                            <option value="supported">تمويل عقاري مدعوم (سكني / الصندوق)</option>
+                            <option value="unsupported">تمويل عقاري غير مدعوم</option>
                         </select>
                     </div>
-                    <button onclick="calculate()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition">
-                        احسب القسط الآن
-                    </button>
+                    <div class="form-group" id="re_installment_group" style="display: none;">
+                        <label for="re_installment">قسط التمويل العقاري الحالي (ريال)</label>
+                        <input type="number" id="re_installment" step="any" placeholder="0" oninput="calculateDBR()">
+                    </div>
+
+                    <!-- Precision Options Accordion -->
+                    <details class="precision-box">
+                        <summary>⚙️ خيارات حسابية دقيقة (معدل الربح والسنوات)</summary>
+                        <div style="margin-top: 10px;">
+                            <div class="form-group">
+                                <label for="personal_profit_rate">نسبة الربح السنوية للتمويل الشخصي (APR %)</label>
+                                <input type="number" id="personal_profit_rate" step="0.1" value="3.5" oninput="calculateDBR()">
+                            </div>
+                            <div class="form-group">
+                                <label for="personal_years">مدة التمويل الشخصي (سنوات)</label>
+                                <input type="number" id="personal_years" step="1" value="5" oninput="calculateDBR()">
+                            </div>
+                            <div class="form-group">
+                                <label for="re_profit_rate">نسبة الربح السنوية للتمويل العقاري (APR %)</label>
+                                <input type="number" id="re_profit_rate" step="0.1" value="4.5" oninput="calculateDBR()">
+                            </div>
+                            <div class="form-group">
+                                <label for="re_years">مدة التمويل العقاري (سنوات)</label>
+                                <input type="number" id="re_years" step="1" value="20" oninput="calculateDBR()">
+                            </div>
+                        </div>
+                    </details>
                 </div>
 
-                <!-- Results -->
-                <div class="bg-slate-900 rounded-2xl p-5 text-white flex flex-col justify-between space-y-3">
-                    <h2 class="text-sm font-bold text-blue-300 border-b border-slate-800 pb-2">النتائج التقديرية</h2>
-                    <div class="bg-slate-800 p-3 rounded-xl border border-slate-700">
-                        <span class="text-slate-400 text-xs block">القسط الشهري المتوقع:</span>
-                        <span id="res-monthly" class="text-2xl font-black text-emerald-400">0.00</span> <span class="text-xs text-slate-400">ريال</span>
+                <div class="result-section">
+                    <div class="dbr-card">
+                        <div style="font-size: 11px; color: var(--text-muted);">نسبة عبء الدين الحالية (DBR)</div>
+                        <div style="font-size: 28px; font-weight: 800; margin: 2px 0;" id="dbr_percent_text">0.0%</div>
+                        <div class="dbr-meter"><div class="dbr-fill" id="dbr_meter_bar"></div></div>
+                        <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-muted);">
+                            <span>المستقطع: <strong id="used_dbr_val">0%</strong></span>
+                            <span>الحد الأقصى: <strong id="max_allowed_dbr_val">55%</strong></span>
+                        </div>
                     </div>
-                    <div class="bg-slate-800 p-3 rounded-xl border border-slate-700">
-                        <span class="text-slate-400 text-xs block">إجمالي أرباح البنك:</span>
-                        <span id="res-interest" class="text-lg font-bold text-blue-300">0.00</span> <span class="text-xs text-slate-400">ريال</span>
+                    <div class="stats-grid">
+                        <div class="stat-box"><div class="title">مساحة DBR المتبقية</div><div class="value" id="remaining_dbr_percent">0%</div></div>
+                        <div class="stat-box"><div class="title">شريحة الدخل</div><div class="value" style="font-size: 11px;" id="income_tier_text">--</div></div>
+                        <div class="stat-box"><div class="title">القسط الشخصي المتاح</div><div class="value" style="color: var(--success);" id="avail_personal_installment">0 ريال</div></div>
+                        <div class="stat-box"><div class="title">القسط العقاري المتاح</div><div class="value" style="color: var(--accent);" id="avail_realestate_installment">0 ريال</div></div>
                     </div>
-                    <div class="bg-slate-800 p-3 rounded-xl border border-slate-700">
-                        <span class="text-slate-400 text-xs block">إجمالي المبلغ المستحق:</span>
-                        <span id="res-total" class="text-lg font-bold text-slate-100">0.00</span> <span class="text-xs text-slate-400">ريال</span>
+                    <div class="stats-grid">
+                        <div class="stat-box"><div class="title">مبلغ الشخصي التقديري</div><div class="value" id="est_personal_loan">0 ريال</div></div>
+                        <div class="stat-box"><div class="title">مبلغ العقاري التقديري</div><div class="value" id="est_realestate_loan">0 ريال</div></div>
                     </div>
+                    <button class="btn-share" onclick="shareDBRResult()">📲 مشاركة نتيجة التمويل</button>
+                    <div class="alert-box alert-danger" id="alert_over_dbr">⚠️ تجاوز الحد النظامي. يمكنك طلب إعادة جدولة دون تكاليف.</div>
+                    <div class="alert-box alert-warning" id="alert_tier3_note">ℹ️ الدخل الأكبر من 25,000 ريال يمنح مرونة حسب فائض الدخل.</div>
                 </div>
             </div>
-        </section>
+            <div class="footer-info">* الحسابات التقديرية تعتمد صيغة PMT المصرفية الدقيقة ووفق لائحة التمويل المسؤول من SAMA.</div>
+        </div>
 
-        <!-- SEO Article -->
-        <article class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 leading-relaxed text-slate-700 space-y-4">
-            <h2 class="text-lg font-bold text-slate-900 border-r-4 border-blue-600 pr-2">كيف تحسب التمويل الشخصي والفائدة؟</h2>
-            <p class="text-sm">تعتبر حاسبة التمويل الشخصي من مسار المالي أداة سريعة لحساب الأقساط الشهرية والفائدة الإجمالية بناءً على نسبة الفائدة السنوية أونلاين بدقة متناهية.</p>
-        </article>
-    </main>
+        <!-- 2. الاستثمار والعوائد -->
+        <div id="panel-invest" class="calc-panel">
+            <div class="panel-header">
+                <span class="badge badge-cma">الاستثمار والعوائد الدوري والمركبة</span>
+                <h2>حاسبة العوائد والاستثمارات المالية</h2>
+            </div>
+            <div class="grid-layout">
+                <div class="form-section">
+                    <div class="form-group">
+                        <label for="invest_amount">مبلغ الاستثمار (ريال)</label>
+                        <input type="number" id="invest_amount" step="any" placeholder="50000" oninput="calculateInvestment()">
+                    </div>
+                    <div class="form-group">
+                        <label for="return_rate">معدل العائد السنوي المتوقع (%)</label>
+                        <input type="number" id="return_rate" step="0.01" placeholder="8.5" oninput="calculateInvestment()">
+                    </div>
+                    <div class="form-group">
+                        <label for="duration_years">مدة الاستثمار (بالسنوات)</label>
+                        <input type="number" id="duration_years" step="0.5" placeholder="3" oninput="calculateInvestment()">
+                    </div>
+                    <div class="form-group">
+                        <label for="payout_frequency">دورية توزيع الأرباح</label>
+                        <select id="payout_frequency" onchange="calculateInvestment()">
+                            <option value="12">شهري</option>
+                            <option value="4" selected>ربع سنوي</option>
+                            <option value="2">نصف سنوي</option>
+                            <option value="1">سنوي</option>
+                            <option value="0">في نهاية الأجل</option>
+                        </select>
+                    </div>
+                    <div class="checkbox-group" id="reinvest_wrapper">
+                        <input type="checkbox" id="reinvest_profit" onchange="calculateInvestment()">
+                        <label for="reinvest_profit" style="font-size: 11px; margin: 0; cursor: pointer;">إعادة استثمار الأرباح تلقائياً (أرباح مركبة Compound)</label>
+                    </div>
 
-    <!-- Footer -->
-    <footer class="bg-slate-900 text-slate-400 py-6 text-center text-xs">
-        <p>&copy; 2026 مسار المالي (FinMasar.com) - جميع الحقوق محفوظة.</p>
-    </footer>
+                    <!-- Advanced Investment Precision -->
+                    <details class="precision-box">
+                        <summary>⚙️ خيارات دقيقة (رسوم التداول/الإدارة)</summary>
+                        <div style="margin-top: 10px;">
+                            <div class="form-group">
+                                <label for="invest_fee_rate">نسبة رسوم الإدارة أو التداول السنوية (%)</label>
+                                <input type="number" id="invest_fee_rate" step="0.01" value="0.00" placeholder="مثال: 0.5" oninput="calculateInvestment()">
+                                <span class="help-text">تُخصم تلقائياً من معدل العائد الصافي.</span>
+                            </div>
+                        </div>
+                    </details>
+                </div>
 
-    <script>
-        function calculate() {
-            const amount = parseFloat(document.getElementById('amount').value) || 0;
-            const interestRate = parseFloat(document.getElementById('interest').value) || 0;
-            const years = parseInt(document.getElementById('years').value) || 1;
-            if (amount <= 0) return;
-            const totalMonths = years * 12;
-            const totalInterest = amount * (interestRate / 100) * years;
-            const totalPayment = amount + totalInterest;
-            const monthlyPayment = totalPayment / totalMonths;
-            document.getElementById('res-monthly').innerText = monthlyPayment.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            document.getElementById('res-interest').innerText = totalInterest.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            document.getElementById('res-total').innerText = totalPayment.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                <div class="result-section">
+                    <div class="hero-card">
+                        <div style="font-size: 11px; color: #94a3b8;">إجمالي القيمة المتوقعة بنهاية المدة</div>
+                        <div class="amount" id="total_portfolio_val">0 ريال</div>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-box"><div class="title" id="payout_box_title">قيمة التوزيع الدوري</div><div class="value" style="color: var(--success);" id="periodic_payout_val">0 ريال</div></div>
+                        <div class="stat-box"><div class="title">إجمالي صافي الأرباح</div><div class="value" style="color: var(--accent);" id="total_profit_val">0 ريال</div></div>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-box"><div class="title">نسبة العائد الصافي (ROI)</div><div class="value" id="roi_percent_val">0%</div></div>
+                        <div class="stat-box"><div class="title">عدد الدفعات</div><div class="value" id="total_payout_count">0 مرة</div></div>
+                    </div>
+                    <button class="btn-share" onclick="shareInvestResult()">📲 مشاركة نتيجة الاستثمار</button>
+                </div>
+            </div>
+            <div class="footer-info">* الحسابات دقيقة وتأخذ بالاعتبار التراكم الدوري التكعيبي وتأثير الرسوم الإدارية.</div>
+        </div>
+
+        <!-- 3. الكهرباء والماء وتكلفة الأجهزة -->
+        <div id="panel-util" class="calc-panel">
+            <div class="panel-header">
+                <span class="badge badge-util">شرائح الاستهلاك المعتمدة بالهللة (+ الضريبة)</span>
+                <h2>حاسبة الكهرباء وتكلفة الأجهزة المنزلية</h2>
+            </div>
+
+            <!-- Sub Navigation inside Utility Tab -->
+            <div class="sub-nav">
+                <button class="sub-nav-btn active" id="sub-btn-appliance" onclick="switchSubTab('appliance')">🔌 حاسبة تكلفة جهاز محدد</button>
+                <button class="sub-nav-btn" id="sub-btn-home" onclick="switchSubTab('home')">🏠 فاتورة المسكن الشهري</button>
+            </div>
+            
+            <div class="grid-layout">
+                <div class="form-section">
+                    
+                    <!-- Sub-panel 1: Single Appliance -->
+                    <div id="sub-panel-appliance">
+                        <h3 style="font-size: 14px; margin-bottom: 10px; color: var(--primary);">🔌 حساب تكلفة جهاز معين</h3>
+                        <div class="form-group">
+                            <label for="appliance_select">اختر الجهاز</label>
+                            <select id="appliance_select" onchange="updateApplianceWatts(); calculateApplianceCost();">
+                                <option value="2000" selected>غلاية ماء (2000 واط)</option>
+                                <option value="2200">مكيف سبليت 18/24 وحدة (2200 واط)</option>
+                                <option value="1500">سخان مياه (1500 واط)</option>
+                                <option value="1800">مكواة ملابس (1800 واط)</option>
+                                <option value="2500">فرن كهربائي (2500 واط)</option>
+                                <option value="1400">مكنسة كهربائية (1400 واط)</option>
+                                <option value="150">شاشة تلفزيون / ريسيفر (150 واط)</option>
+                                <option value="custom">جهاز آخر (تحديد قدرة الواط يدويًا)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" id="custom_watts_group" style="display: none;">
+                            <label for="appliance_watts">قدرة الجهاز بالواط (Watt)</label>
+                            <input type="number" id="appliance_watts" step="any" placeholder="مثال: 2000" value="2000" oninput="calculateApplianceCost()">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="appliance_hours">ساعات التشغيل اليومية (ساعة/يوم)</label>
+                            <input type="number" id="appliance_hours" step="0.1" placeholder="مثال: 3" value="3" oninput="calculateApplianceCost()">
+                            <div class="quick-chips">
+                                <button class="chip" onclick="setApplianceHours(1)">ساعة</button>
+                                <button class="chip" onclick="setApplianceHours(3)">3 ساعات</button>
+                                <button class="chip" onclick="setApplianceHours(8)">8 ساعات</button>
+                                <button class="chip" onclick="setApplianceHours(12)">12 ساعة</button>
+                            </div>
+                        </div>
+
+                        <!-- Advanced Precision for Appliance -->
+                        <details class="precision-box">
+                            <summary>⚙️ خيارات التعرفة والأيام الدقيقة</summary>
+                            <div style="margin-top: 10px;">
+                                <div class="form-group">
+                                    <label for="tariff_mode">نوع التعرفة المستخدمة</label>
+                                    <select id="tariff_mode" onchange="toggleCustomTariff(); calculateApplianceCost();">
+                                        <option value="0.18" selected>سكني - الشريحة الأولى (18 هللة/ك.و.س)</option>
+                                        <option value="0.30">سكني - الشريحة الثانية (30 هللة/ك.و.س)</option>
+                                        <option value="0.30_comm">تجاري (30 هللة/ك.و.س)</option>
+                                        <option value="custom">تعرفة مخصصة بالهللة</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" id="custom_tariff_input_group" style="display: none;">
+                                    <label for="custom_tariff_halala">سعر الكيلوواط/ساعة (بالهللة)</label>
+                                    <input type="number" id="custom_tariff_halala" step="0.1" value="18" oninput="calculateApplianceCost()">
+                                </div>
+                                <div class="form-group">
+                                    <label for="appliance_days">عدد أيام الشهر</label>
+                                    <input type="number" id="appliance_days" value="30" step="1" oninput="calculateApplianceCost()">
+                                </div>
+                            </div>
+                        </details>
+                    </div>
+
+                    <!-- Sub-panel 2: Home Total Bill -->
+                    <div id="sub-panel-home" style="display: none;">
+                        <h3 style="font-size: 14px; margin-bottom: 10px; color: var(--primary);">🏠 حساب إجمالي فاتورة البيت</h3>
+                        <div class="form-group">
+                            <label for="elec_kwh">استهلاك الكهرباء الشهري (kWh)</label>
+                            <input type="number" id="elec_kwh" step="any" placeholder="مثال: 4500" oninput="calculateUtilities()">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="water_m3">استهلاك المياه الشهري (m³)</label>
+                            <input type="number" id="water_m3" step="any" placeholder="مثال: 35" oninput="calculateUtilities()">
+                        </div>
+
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="include_sewer" checked onchange="calculateUtilities()">
+                            <label for="include_sewer" style="font-size: 11px; margin: 0; cursor: pointer;">تضمين خدمات الصرف الصحي للمياه</label>
+                        </div>
+
+                        <!-- Advanced Precision for Home Bill -->
+                        <details class="precision-box">
+                            <summary>⚙️ خيارات العداد والضريبة الدقيقة</summary>
+                            <div style="margin-top: 10px;">
+                                <div class="form-group">
+                                    <label for="meter_fee">رسوم العداد الشهري (ريال)</label>
+                                    <input type="number" id="meter_fee" step="0.1" value="10" oninput="calculateUtilities()">
+                                </div>
+                                <div class="form-group">
+                                    <label for="vat_rate">نسبة ضريبة القيمة المضافة (%)</label>
+                                    <input type="number" id="vat_rate" step="0.1" value="15" oninput="calculateUtilities(); calculateApplianceCost();">
+                                </div>
+                            </div>
+                        </details>
+                    </div>
+
+                </div>
+
+                <!-- Result View for Appliance -->
+                <div class="result-section" id="res-appliance-view">
+                    <div class="hero-card">
+                        <div style="font-size: 11px; color: #94a3b8;">التكلفة الشهرية لتشغيل الجهاز</div>
+                        <div class="amount" id="appliance_monthly_cost">0 ريال</div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="title">التكلفة اليومية</div>
+                            <div class="value" style="color: var(--danger);" id="appliance_daily_cost">0 ريال</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="title">الاستهلاك الشهري</div>
+                            <div class="value" id="appliance_kwh_val">0 kWh</div>
+                        </div>
+                    </div>
+
+                    <div style="background: #f1f5f9; padding: 10px; border-radius: 8px; font-size: 11px; color: var(--text-muted);" id="appliance_insight">
+                        💡 الحساب المباشر يعتمد التعرفة والضريبة المحددة بدقة بالهللة.
+                    </div>
+
+                    <button class="btn-share" onclick="shareApplianceResult()">📲 مشاركة تكلفة هذا الجهاز</button>
+                </div>
+
+                <!-- Result View for Home Total -->
+                <div class="result-section" id="res-home-view" style="display: none;">
+                    <div class="hero-card">
+                        <div style="font-size: 11px; color: #94a3b8;">إجمالي الفاتورة الشهري المتوقع للمسكن</div>
+                        <div class="amount" id="util_grand_total">0 ريال</div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="title">صافي الكهرباء</div>
+                            <div class="value" style="color: #f59e0b;" id="elec_total_val">0 ريال</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="title">صافي المياه</div>
+                            <div class="value" style="color: #0284c7;" id="water_total_val">0 ريال</div>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="title">المبلغ قبل الضريبة</div>
+                            <div class="value" id="util_subtotal_val">0 ريال</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="title">الضريبة المضافة</div>
+                            <div class="value" style="color: var(--danger);" id="util_vat_val">0 ريال</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="footer-info">* حسابات الكهرباء والمياه دقيقة وتراعي تقسيم الشرائح المعتمدة ورسوم خدمة العداد المقررة.</div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function switchTab(tabName) {
+        document.querySelectorAll('.calc-panel').forEach(panel => panel.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+        document.getElementById('panel-' + tabName).classList.add('active');
+        document.getElementById('btn-' + tabName).classList.add('active');
+    }
+
+    function switchSubTab(type) {
+        document.getElementById('sub-btn-appliance').classList.toggle('active', type === 'appliance');
+        document.getElementById('sub-btn-home').classList.toggle('active', type === 'home');
+
+        document.getElementById('sub-panel-appliance').style.display = (type === 'appliance') ? 'block' : 'none';
+        document.getElementById('sub-panel-home').style.display = (type === 'home') ? 'block' : 'none';
+
+        document.getElementById('res-appliance-view').style.display = (type === 'appliance') ? 'flex' : 'none';
+        document.getElementById('res-home-view').style.display = (type === 'home') ? 'flex' : 'none';
+    }
+
+    function setSalary(val) {
+        document.getElementById('salary').value = val;
+        calculateDBR();
+    }
+
+    function setApplianceHours(val) {
+        document.getElementById('appliance_hours').value = val;
+        calculateApplianceCost();
+    }
+
+    // Helper Financial PMT Formula for Precise Principal Calculation
+    function calculateMaxLoanFromPMT(pmt, annualRatePct, years) {
+        if (pmt <= 0 || years <= 0) return 0;
+        const r = (annualRatePct / 100) / 12;
+        const n = years * 12;
+        if (r === 0) return pmt * n;
+        const presentValue = pmt * ((1 - Math.pow(1 + r, -n)) / r);
+        return presentValue;
+    }
+
+    // --- 1. Precise DBR Logic ---
+    function toggleRealEstateInput() {
+        const status = document.getElementById('real_estate_status').value;
+        document.getElementById('re_installment_group').style.display = (status === 'none') ? 'none' : 'block';
+        if (status === 'none') document.getElementById('re_installment').value = '';
+    }
+
+    function calculateDBR() {
+        const borrowerType = document.querySelector('input[name="borrower_type"]:checked').value;
+        const salary = parseFloat(document.getElementById('salary').value) || 0;
+        const existingLoans = parseFloat(document.getElementById('existing_loans').value) || 0;
+        const ccLimit = parseFloat(document.getElementById('cc_limit').value) || 0;
+        const bnplInstallment = parseFloat(document.getElementById('bnpl_installment').value) || 0;
+        const reStatus = document.getElementById('real_estate_status').value;
+        const reInstallment = parseFloat(document.getElementById('re_installment').value) || 0;
+
+        // Precision inputs
+        const personalRate = parseFloat(document.getElementById('personal_profit_rate').value) || 3.5;
+        const personalYears = parseFloat(document.getElementById('personal_years').value) || 5;
+        const reRate = parseFloat(document.getElementById('re_profit_rate').value) || 4.5;
+        const reYears = parseFloat(document.getElementById('re_years').value) || 20;
+
+        document.getElementById('alert_over_dbr').style.display = 'none';
+        document.getElementById('alert_tier3_note').style.display = 'none';
+
+        if (salary <= 0) {
+            document.getElementById('dbr_percent_text').innerText = '0.0%';
+            document.getElementById('dbr_meter_bar').style.width = '0%';
+            document.getElementById('used_dbr_val').innerText = '0%';
+            document.getElementById('remaining_dbr_percent').innerText = '0%';
+            document.getElementById('income_tier_text').innerText = '--';
+            document.getElementById('avail_personal_installment').innerText = '0 ريال';
+            document.getElementById('avail_realestate_installment').innerText = '0 ريال';
+            document.getElementById('est_personal_loan').innerText = '0 ريال';
+            document.getElementById('est_realestate_loan').innerText = '0 ريال';
+            return;
         }
-        window.onload = calculate;
-    </script>
+
+        const ccMonthlyObligation = ccLimit * 0.05;
+        const totalConsumerObligations = existingLoans + ccMonthlyObligation + bnplInstallment;
+        const totalObligations = totalConsumerObligations + (reStatus !== 'none' ? reInstallment : 0);
+        const currentDBR = (totalObligations / salary) * 100;
+
+        const maxPersonalRatio = (borrowerType === 'retired') ? 0.25 : 0.3333;
+        const maxPersonalAmount = salary * maxPersonalRatio;
+
+        let maxTotalDBRRatio = 0.55;
+        let incomeTierName = 'الأولى (≤ 15k)';
+
+        if (salary <= 15000) {
+            incomeTierName = 'الأولى (≤ 15,000 ريال)';
+            maxTotalDBRRatio = (reStatus === 'supported') ? 0.65 : 0.55;
+        } else if (salary > 15000 && salary <= 25000) {
+            incomeTierName = 'الثانية (15k - 25k ريال)';
+            maxTotalDBRRatio = 0.65;
+        } else {
+            incomeTierName = 'الثالثة (> 25,000 ريال)';
+            maxTotalDBRRatio = 0.65;
+            document.getElementById('alert_tier3_note').style.display = 'block';
+        }
+
+        const maxTotalDBRAmount = salary * maxTotalDBRRatio;
+        const remainingDBRRatio = Math.max(0, (maxTotalDBRRatio * 100) - currentDBR);
+
+        const availPersonalInstallment = Math.max(0, Math.min(
+            maxPersonalAmount - totalConsumerObligations,
+            maxTotalDBRAmount - totalObligations
+        ));
+        const availRealEstateInstallment = Math.max(0, maxTotalDBRAmount - totalObligations);
+
+        // Precise Loan Principal Calculation using Annuity PMT
+        const estPersonalPrincipal = calculateMaxLoanFromPMT(availPersonalInstallment, personalRate, personalYears);
+        const estRealEstatePrincipal = calculateMaxLoanFromPMT(availRealEstateInstallment, reRate, reYears);
+
+        document.getElementById('dbr_percent_text').innerText = currentDBR.toFixed(1) + '%';
+        document.getElementById('used_dbr_val').innerText = currentDBR.toFixed(1) + '%';
+        document.getElementById('max_allowed_dbr_val').innerText = (maxTotalDBRRatio * 100) + '%';
+        document.getElementById('remaining_dbr_percent').innerText = remainingDBRRatio.toFixed(1) + '%';
+        document.getElementById('income_tier_text').innerText = incomeTierName;
+
+        document.getElementById('avail_personal_installment').innerText = Math.round(availPersonalInstallment).toLocaleString('ar-SA') + ' ريال';
+        document.getElementById('avail_realestate_installment').innerText = Math.round(availRealEstateInstallment).toLocaleString('ar-SA') + ' ريال';
+
+        document.getElementById('est_personal_loan').innerText = Math.round(estPersonalPrincipal).toLocaleString('ar-SA') + ' ريال';
+        document.getElementById('est_realestate_loan').innerText = Math.round(estRealEstatePrincipal).toLocaleString('ar-SA') + ' ريال';
+
+        const meterBar = document.getElementById('dbr_meter_bar');
+        const fillPercent = Math.min(100, (currentDBR / (maxTotalDBRRatio * 100)) * 100);
+        meterBar.style.width = fillPercent + '%';
+
+        if (currentDBR > (maxTotalDBRRatio * 100)) {
+            meterBar.style.backgroundColor = 'var(--danger)';
+            document.getElementById('alert_over_dbr').style.display = 'block';
+        } else if (currentDBR > 40) {
+            meterBar.style.backgroundColor = 'var(--warning)';
+        } else {
+            meterBar.style.backgroundColor = 'var(--success)';
+        }
+    }
+
+    // --- 2. Precise Investment Logic ---
+    function calculateInvestment() {
+        const principal = parseFloat(document.getElementById('invest_amount').value) || 0;
+        const grossRatePct = parseFloat(document.getElementById('return_rate').value) || 0;
+        const feeRatePct = parseFloat(document.getElementById('invest_fee_rate').value) || 0;
+        const years = parseFloat(document.getElementById('duration_years').value) || 0;
+        const freq = parseInt(document.getElementById('payout_frequency').value);
+        const isReinvest = document.getElementById('reinvest_profit').checked;
+
+        const reinvestWrapper = document.getElementById('reinvest_wrapper');
+        reinvestWrapper.style.opacity = (freq === 0) ? '0.5' : '1';
+        reinvestWrapper.style.pointerEvents = (freq === 0) ? 'none' : 'auto';
+
+        if (principal <= 0 || years <= 0) {
+            document.getElementById('total_portfolio_val').innerText = '0 ريال';
+            document.getElementById('periodic_payout_val').innerText = '0 ريال';
+            document.getElementById('total_profit_val').innerText = '0 ريال';
+            document.getElementById('roi_percent_val').innerText = '0%';
+            document.getElementById('total_payout_count').innerText = '0 مرة';
+            return;
+        }
+
+        const netAnnualRate = Math.max(0, (grossRatePct - feeRatePct) / 100);
+        let totalPortfolio = 0, totalProfit = 0, periodicPayout = 0, payoutCount = 0;
+
+        if (freq === 0) {
+            payoutCount = 1;
+            totalProfit = principal * netAnnualRate * years;
+            totalPortfolio = principal + totalProfit;
+            periodicPayout = totalProfit;
+            document.getElementById('payout_box_title').innerText = 'العائد الصافي عند نهاية الأجل';
+        } else {
+            payoutCount = freq * years;
+            if (isReinvest) {
+                totalPortfolio = principal * Math.pow((1 + (netAnnualRate / freq)), payoutCount);
+                totalProfit = totalPortfolio - principal;
+                periodicPayout = totalProfit / payoutCount;
+                document.getElementById('payout_box_title').innerText = 'متوسط نمو الدورية المركبة';
+            } else {
+                periodicPayout = (principal * netAnnualRate) / freq;
+                totalProfit = periodicPayout * payoutCount;
+                totalPortfolio = principal + totalProfit;
+                document.getElementById('payout_box_title').innerText = 'قيمة كل دفعة توزيعية';
+            }
+        }
+
+        document.getElementById('total_portfolio_val').innerText = Math.round(totalPortfolio).toLocaleString('ar-SA') + ' ريال';
+        document.getElementById('periodic_payout_val').innerText = Math.round(periodicPayout).toLocaleString('ar-SA') + ' ريال';
+        document.getElementById('total_profit_val').innerText = Math.round(totalProfit).toLocaleString('ar-SA') + ' ريال';
+        document.getElementById('roi_percent_val').innerText = ((totalProfit / principal) * 100).toFixed(2) + '%';
+        document.getElementById('total_payout_count').innerText = payoutCount + ' دفعة';
+    }
+
+    // --- 3. Precise Utilities & Appliance Logic ---
+    function updateApplianceWatts() {
+        const select = document.getElementById('appliance_select');
+        const customGroup = document.getElementById('custom_watts_group');
+        if (select.value === 'custom') {
+            customGroup.style.display = 'block';
+        } else {
+            customGroup.style.display = 'none';
+            document.getElementById('appliance_watts').value = select.value;
+        }
+    }
+
+    function toggleCustomTariff() {
+        const mode = document.getElementById('tariff_mode').value;
+        document.getElementById('custom_tariff_input_group').style.display = (mode === 'custom') ? 'block' : 'none';
+    }
+
+    function calculateApplianceCost() {
+        const wattsInput = parseFloat(document.getElementById('appliance_watts').value) || 0;
+        const hours = parseFloat(document.getElementById('appliance_hours').value) || 0;
+        const days = parseFloat(document.getElementById('appliance_days').value) || 30;
+        const vatRatePct = parseFloat(document.getElementById('vat_rate').value) || 15;
+
+        let tariffHalala = 18;
+        const tariffMode = document.getElementById('tariff_mode').value;
+        if (tariffMode === 'custom') {
+            tariffHalala = parseFloat(document.getElementById('custom_tariff_halala').value) || 18;
+        } else {
+            tariffHalala = parseFloat(tariffMode) * 100;
+        }
+
+        if (wattsInput <= 0 || hours <= 0) {
+            document.getElementById('appliance_daily_cost').innerText = '0 ريال';
+            document.getElementById('appliance_monthly_cost').innerText = '0 ريال';
+            document.getElementById('appliance_kwh_val').innerText = '0 kWh';
+            return;
+        }
+
+        const dailyKwh = (wattsInput / 1000) * hours;
+        const monthlyKwh = dailyKwh * days;
+
+        const ratePerKwhSAR = (tariffHalala / 100);
+        const rateWithVat = ratePerKwhSAR * (1 + (vatRatePct / 100));
+
+        const dailyCost = dailyKwh * rateWithVat;
+        const monthlyCost = monthlyKwh * rateWithVat;
+
+        document.getElementById('appliance_daily_cost').innerText = dailyCost.toFixed(2) + ' ريال';
+        document.getElementById('appliance_monthly_cost').innerText = monthlyCost.toFixed(2) + ' ريال';
+        document.getElementById('appliance_kwh_val').innerText = monthlyKwh.toFixed(1) + ' kWh';
+    }
+
+    function calculateUtilities() {
+        const kwh = parseFloat(document.getElementById('elec_kwh').value) || 0;
+        const m3 = parseFloat(document.getElementById('water_m3').value) || 0;
+        const includeSewer = document.getElementById('include_sewer').checked;
+        const meterFee = parseFloat(document.getElementById('meter_fee').value) || 0;
+        const vatRatePct = parseFloat(document.getElementById('vat_rate').value) || 15;
+
+        let elecCost = 0;
+        if (kwh > 0) {
+            if (kwh <= 6000) {
+                elecCost = kwh * 0.18;
+            } else {
+                elecCost = (6000 * 0.18) + ((kwh - 6000) * 0.30);
+            }
+            elecCost += meterFee;
+        }
+
+        let waterCost = 0;
+        let remM3 = m3;
+
+        if (remM3 > 0) {
+            const t1 = Math.min(remM3, 15);
+            waterCost += t1 * (includeSewer ? 0.15 : 0.10);
+            remM3 -= t1;
+        }
+        if (remM3 > 0) {
+            const t2 = Math.min(remM3, 15);
+            waterCost += t2 * (includeSewer ? 1.50 : 1.00);
+            remM3 -= t2;
+        }
+        if (remM3 > 0) {
+            const t3 = Math.min(remM3, 15);
+            waterCost += t3 * (includeSewer ? 4.50 : 3.00);
+            remM3 -= t3;
+        }
+        if (remM3 > 0) {
+            const t4 = Math.min(remM3, 15);
+            waterCost += t4 * (includeSewer ? 9.00 : 6.00);
+            remM3 -= t4;
+        }
+        if (remM3 > 0) {
+            waterCost += remM3 * (includeSewer ? 13.50 : 9.00);
+        }
+
+        const subtotal = elecCost + waterCost;
+        const vat = subtotal * (vatRatePct / 100);
+        const grandTotal = subtotal + vat;
+
+        document.getElementById('elec_total_val').innerText = Math.round(elecCost).toLocaleString('ar-SA') + ' ريال';
+        document.getElementById('water_total_val').innerText = Math.round(waterCost).toLocaleString('ar-SA') + ' ريال';
+        document.getElementById('util_subtotal_val').innerText = Math.round(subtotal).toLocaleString('ar-SA') + ' ريال';
+        document.getElementById('util_vat_val').innerText = Math.round(vat).toLocaleString('ar-SA') + ' ريال';
+        document.getElementById('util_grand_total').innerText = Math.round(grandTotal).toLocaleString('ar-SA') + ' ريال';
+    }
+
+    // --- Share Functions (Viral Mechanism) ---
+    function shareApplianceResult() {
+        const select = document.getElementById('appliance_select');
+        const name = select.options[select.selectedIndex].text.split('(')[0].trim();
+        const cost = document.getElementById('appliance_monthly_cost').innerText;
+        const hours = document.getElementById('appliance_hours').value;
+
+        const text = `🔌 هل تعلم أن تشغيل (${name}) لمدة ${hours} ساعات يومياً يكلفك تقريباً ${cost} شهرياً! ⚡\n\nاحسب تكلفة أجهزتك المنزلية مجاناً عبر منصة فين مسار:`;
+        
+        if (navigator.share) {
+            navigator.share({ title: 'فين مسار', text: text, url: window.location.href });
+        } else {
+            navigator.clipboard.writeText(text + " " + window.location.href);
+            alert("تم نسخ النتيجة والرابط إلى حافظتك لتشاركها!");
+        }
+    }
+
+    function shareDBRResult() {
+        const dbr = document.getElementById('dbr_percent_text').innerText;
+        const avail = document.getElementById('avail_personal_installment').innerText;
+        const text = `💳 نسبة الاستقطاع (DBR) الخاصة بي هي ${dbr}، والقسط الشخصي المتاح هو ${avail}.\n\nاحسب تمويلك ونسبة DBR وفق ضوابط SAMA عبر منصة فين مسار:`;
+        
+        if (navigator.share) {
+            navigator.share({ title: 'فين مسار', text: text, url: window.location.href });
+        } else {
+            navigator.clipboard.writeText(text + " " + window.location.href);
+            alert("تم نسخ نتيجة التمويل للحافظة!");
+        }
+    }
+
+    function shareInvestResult() {
+        const profit = document.getElementById('total_profit_val').innerText;
+        const roi = document.getElementById('roi_percent_val').innerText;
+        const text = `📈 أرباح استثماري التقديرية هي ${profit} بنسبة نمو ${roi}.\n\nاحسب عوائدك واستثماراتك المركبة مجاناً عبر منصة فين مسار:`;
+        
+        if (navigator.share) {
+            navigator.share({ title: 'فين مسار', text: text, url: window.location.href });
+        } else {
+            navigator.clipboard.writeText(text + " " + window.location.href);
+            alert("تم نسخ نتيجة الاستثمار للحافظة!");
+        }
+    }
+
+    // Run Initial Calc
+    calculateApplianceCost();
+</script>
+
 </body>
 </html>
